@@ -1,25 +1,70 @@
-import logo from './logo.svg';
-import './App.css';
+// Importing React
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+//Pages
+//Home Page
+import Home from "./pages/Home";
+// Movies Page
+import Movies from "./pages/Movies";
+// Movie Detail Page
+import MovieDetail from "./pages/MovieDetail";
+// TV Shows Page
+import TVShows from "./pages/TVShows";
+// TV Detail Page
+import TVDetail from "./pages/TVDetail";
+// Watch list Page
+import WatchLists from "./pages/WatchLists";
+
+// Layout
+import Layout from "./components/Layout";
+
+// Context
+import { WatchlistProvider } from "./context/WatchlistContext";
+
+// Toast
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Login from "./pages/Login";
+
+
+// This is the main App component (root of your React app)
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+    <WatchlistProvider>
+    <BrowserRouter>
+    <Layout>
+      <Routes>
+        {/* Route for Home */}
+        <Route path="/" element={<Home />} />\
+        <Route path="/movies" element={<Movies />} />
+        <Route path="/movie/:id" element={<MovieDetail />} />
+
+        <Route path="/tv-shows" element={<TVShows />} />
+        <Route path="/tv/:id" element={<TVDetail />} />
+
+        <Route path="/watchlist" element={<WatchLists />} />
+        
+        <Route path="/watchlist" element={<ProtectedRoute>
+        <Route path="/login" element={<Login />} />
+      <WatchLists />
+    </ProtectedRoute>
+  }
+/>
+        </Routes>
+    </Layout>
+    
+    {/* Toast UI */}
+    <ToastContainer position="top-right" autoClose={2000} />
+    </BrowserRouter>
+    </WatchlistProvider>
+    </AuthProvider>
   );
 }
 
+// This allows other files to use this component
 export default App;
