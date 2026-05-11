@@ -1,61 +1,179 @@
 import React, { useEffect, useState } from "react";
-import { getTrendingMovies, searchMovies } from "../api/movies";
-import MovieCard from "../components/MovieCard";
-import { toast } from "react-toastify";
+import { useParams } from "react-router-dom";
 
-function Home() {
-  const [movies, setMovies] = useState([]);
-  const [search, setSearch] = useState("");
+// API function for fetching single movie details
+import { getMovieDetails } from "../api/movies";
 
+// Watchlist context
+import { useWatchlist } from "../context/WatchlistContext";
+
+// Movie Detail Component
+function MovieDetail() {
+
+  // Getting movie id from URL
+  const { id } = useParams();
+
+  // State for storing movie details
+  const [movie, setMovie] = useState(null);
+
+  // Loading state
+  const [loading, setLoading] = useState(true);
+
+  // Error state
+  const [error, setError] = useState(null);
+
+  // Watchlist functions
+  const {
+    addToWatchlist,
+    removeFromWatchlist,
+    watchlist
+  } = useWatchlist();
+
+  // =========================================
+  // Fetch movie details when page loads
+  // =========================================
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        let data;
 
-        if (search.trim() === "") {
-          data = await getTrendingMovies();
-          setMovies(data.slice(0, 12));
-        } else {
-          data = await searchMovies(search);
-          setMovies(data);
-        }
-      } catch {
-        toast.error("Failed to fetch movies");
+    const fetchMovie = async () => {
+      try {
+        // Start loading
+        setLoading(true);
+
+        // Clear old errors
+        setError(null);
+
+        // Fetch movie details using ID
+        const data = await getMovieDetails(id);
+
+        // Store movie data
+        setMovie(data);
+
+      } catch (err) {
+
+        // Show error if API fails
+        setError("Failed to load movie details");
+
+      } finally {
+
+        // Stop loading
+        setLoading(false);
       }
     };
 
-    fetchData();
-  }, [search]);
+    fetchMovie();
 
-  const filteredMovies = movies.filter((movie) =>
-    (movie.title || "").toLowerCase().includes(search.toLowerCase())
+  }, [id]);
+
+  // =========================================
+  // Loading UI
+  // =========================================
+  if (loading) {
+    return <p>Loading movie details...</p>;
+  }
+
+  // =========================================
+  // Error UI
+  // =========================================
+  if (error) {
+    return (
+      <p style={{ color: "red" }}>
+        {error}
+      </p>
+    );
+  }
+
+  // =========================================
+  // Safety check
+  // =========================================
+  if (!movie) return null;
+
+
+  // Check if movie already exists in watchlist
+  const isAdded = watchlist.find(
+    (item) => item.id === movie.id
   );
 
   return (
+    // Main container
     <div style={{ padding: "20px" }}>
-      <h1>Trending Movies</h1>
 
-      <input
-        type="text"
-        placeholder="Search movies..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
+      <div
         style={{
-          padding: "10px",
-          width: "100%",
-          marginBottom: "20px"
+          display: "flex",
+          gap: "30px"
         }}
-      />
+      >
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
-        {filteredMovies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
-        ))}
+        {/* Movie Poster */}
+        <img
+          src={
+            movie.poster_path
+              ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
+              : "https://via.placeholder.com/300"
+          }
+          alt={movie.title}
+          style={{
+            width: "300px",
+            borderRadius: "10px"
+          }}
+        />
+
+        {/* Movie Details */}
+        <div>
+
+          {/* Movie Title */}
+          <h1>{movie.title}</h1>
+
+          {/* Overview */}
+          <p>
+            <strong>Overview:</strong>{" "}
+            {movie.overview}
+          </p>
+
+          {/* Release Date */}
+          <p>
+            <strong>Release Date:</strong>{" "}
+            {movie.release_date}
+          </p>
+
+          {/* Rating */}
+          <p>
+            <strong>Rating:</strong>{" "}
+            {movie.vote_average}
+          </p>
+
+          {/* Genres */}
+          <p>
+            <strong>Genres:</strong>{" "}
+
+            {movie.genres && movie.genres.length > 0
+              ? movie.genres
+                  .map((genre) => genre.name)
+                  .join(", ")
+              : "N/A"}
+          </p>
+
+          {/* Watchlist Button */}
+          <button
+            onClick={() =>
+              isAdded
+                ? removeFromWatchlist(movie.id)
+                : addToWatchlist(movie)
+            }
+            style={{
+              padding: "10px",
+              marginTop: "10px"
+            }}
+          >
+            {isAdded
+              ? "Remove from Watchlist"
+              : "Add to Watchlist"}
+          </button>
+        </div>
       </div>
-
-      {filteredMovies.length === 0 && <p>No movies found</p>}
     </div>
   );
 }
 
-export default Home;
+// Export component
+export default MovieDetail;

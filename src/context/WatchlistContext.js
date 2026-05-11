@@ -25,7 +25,8 @@ export const WatchlistProvider = ({ children }) => {
     try {
 
       // Get stored watchlist data
-      const stored = JSON.parse(localStorage.getItem("watchlist"));
+      const data = localStorage.getItem("watchlist");
+      const stored = JSON.parse(data);
 
       // Set watchlist or empty array
       setWatchlist(stored || []);
@@ -39,9 +40,9 @@ export const WatchlistProvider = ({ children }) => {
   }, []);
 
 
-  // =========================================
+  // ================================================
   // Sync watchlist with localStorage automatically
-  // =========================================
+  // ================================================
   useEffect(() => {
 
     // Save updated watchlist into localStorage
@@ -56,12 +57,21 @@ export const WatchlistProvider = ({ children }) => {
   const addToWatchlist = (movie) => {
 
     // Check if movie already exists
-    const exists = watchlist.find((item) => item.id === movie.id);
+    let exists = false;
+
+    for (let i = 0; i < watchlist.length; i++) {
+      if (watchlist[i].id === movie.id) {
+        exists = true;
+      }
+    }
 
     if (!exists) {
 
       // Add movie to watchlist
-      setWatchlist([...watchlist, movie]);
+      const updatedList = [...watchlist];
+      updatedList.push(movie);
+
+      setWatchlist(updatedList);
 
       // Success notification
       toast.success("Added to Watchlist");
@@ -80,9 +90,11 @@ export const WatchlistProvider = ({ children }) => {
   const removeFromWatchlist = (id) => {
 
     // Remove item using filter
-    setWatchlist(
-      watchlist.filter((item) => item.id !== id)
-    );
+    const updatedWatchlist = watchlist.filter(function(item) {
+      return item.id !== id;
+    });
+
+    setWatchlist(updatedWatchlist);
 
     // Error-style notification
     toast.error("Removed from Watchlist");

@@ -2,17 +2,17 @@ import React from "react";
 import { useWatchlist } from "../context/WatchlistContext";
 import { useNavigate } from "react-router-dom";
 
-// MovieCard component receives movie object as prop
+// single movie card
 function MovieCard({ movie }) {
 
-  // Getting watchlist functions and data from Context API
+  // watchlist functions
   const { addToWatchlist, removeFromWatchlist, watchlist } = useWatchlist();
 
   // Hook for page navigation
   const navigate = useNavigate();
 
   // Check whether movie already exists in watchlist
-  const isAdded = watchlist.find((item) => item.id === movie.id);
+  const existsInWatchlist = watchlist.some((movieItem) => movieItem.id === movie.id);
 
   return (
 
@@ -20,9 +20,7 @@ function MovieCard({ movie }) {
     <div
 
       // Navigate to movie or TV details page on card click
-      onClick={() =>
-        navigate(movie.title ? `/movie/${movie.id}` : `/tv/${movie.id}`)
-      }
+      onClick={() => navigate(movie.title ? `/movie/${movie.id}` : `/tv/${movie.id}`)}
 
       // Tailwind classes for styling and hover animation
       className="w-48 cursor-pointer transform hover:scale-110 transition"
@@ -35,9 +33,7 @@ function MovieCard({ movie }) {
       />
 
       {/* Movie title or TV show name */}
-      <h3 className="text-sm mt-2">
-        {movie.title || movie.name}
-      </h3>
+      <h3 className="text-sm mt-2">{movie.title || movie.name}</h3>
 
       {/* Add / Remove Watchlist Button */}
       <button

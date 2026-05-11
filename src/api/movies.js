@@ -7,15 +7,15 @@ export const getTrendingMovies = async () => {
   try {
 
     // API request for trending movies of the day
-    const res = await fetch(
+    const response = await fetch(
       `${BASE_URL}/trending/movie/day?api_key=${API_KEY}`
     );
 
     // Check if request failed
-    if (!res.ok) throw new Error("Failed to fetch movies");
+    if (!res.ok) throw new Error("Unable to load movies");
 
     // Convert response into JSON
-    const data = await res.json();
+    const movieData = await res.json();
 
     // Return movie list or empty array
     return data.results || [];
@@ -43,7 +43,7 @@ export const searchMovies = async (query) => {
     );
 
     // Check if request failed
-    if (!res.ok) throw new Error("Search failed");
+    if (!res.ok) throw new Error("Movie search request failed");
 
     // Convert response into JSON
     const data = await res.json();
@@ -74,7 +74,7 @@ export const getMovieDetails = async (id) => {
     );
 
     // Check if request failed
-    if (!res.ok) throw new Error("Failed to fetch details");
+    if (!res.ok) throw new Error("Could not fetch movie details");
 
     // Convert response into JSON
     const data = await res.json();
@@ -110,7 +110,8 @@ export const getMovieCredits = async (id) => {
     // Return cast array
     return data.cast || [];
 
-  } catch {
+  } catch (error) {
+  console.error("Credits Fetch Error:", error);
 
     // Return empty array if request fails
     return [];
