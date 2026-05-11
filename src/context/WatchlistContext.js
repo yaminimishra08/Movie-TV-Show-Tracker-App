@@ -1,52 +1,115 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
+
 import { toast } from "react-toastify";
 
+// Creating Watchlist Context
 const WatchlistContext = createContext();
 
+// WatchlistProvider component provides
+// watchlist data and functions to the app
 export const WatchlistProvider = ({ children }) => {
+
+  // State for storing watchlist items
   const [watchlist, setWatchlist] = useState([]);
 
-  // Load safely
+  // =========================================
+  // Load watchlist from localStorage safely
+  // =========================================
   useEffect(() => {
+
     try {
+
+      // Get stored watchlist data
       const stored = JSON.parse(localStorage.getItem("watchlist"));
+
+      // Set watchlist or empty array
       setWatchlist(stored || []);
+
     } catch {
+
+      // Handle invalid JSON or storage errors
       setWatchlist([]);
     }
+
   }, []);
 
-  // Sync automatically
+
+  // =========================================
+  // Sync watchlist with localStorage automatically
+  // =========================================
   useEffect(() => {
+
+    // Save updated watchlist into localStorage
     localStorage.setItem("watchlist", JSON.stringify(watchlist));
+
   }, [watchlist]);
 
+
+  // =========================================
+  // Add movie or TV show to watchlist
+  // =========================================
   const addToWatchlist = (movie) => {
+
+    // Check if movie already exists
     const exists = watchlist.find((item) => item.id === movie.id);
 
     if (!exists) {
+
+      // Add movie to watchlist
       setWatchlist([...watchlist, movie]);
+
+      // Success notification
       toast.success("Added to Watchlist");
+
     } else {
+
+      // Info notification if already added
       toast.info("Already in Watchlist");
     }
   };
 
+
+  // =========================================
+  // Remove movie or TV show from watchlist
+  // =========================================
   const removeFromWatchlist = (id) => {
-    setWatchlist(watchlist.filter((item) => item.id !== id));
+
+    // Remove item using filter
+    setWatchlist(
+      watchlist.filter((item) => item.id !== id)
+    );
+
+    // Error-style notification
     toast.error("Removed from Watchlist");
   };
 
+
   return (
+
+    // Providing watchlist data and functions
+    // to all child components
     <WatchlistContext.Provider
-      value={{ watchlist, addToWatchlist, removeFromWatchlist }}
+      value={{
+        watchlist,
+        addToWatchlist,
+        removeFromWatchlist,
+      }}
     >
       {children}
     </WatchlistContext.Provider>
   );
 };
 
-// Custom Hook (VALID)
+
+// =========================================
+// Custom Hook for easy context access
+// =========================================
 export const useWatchlist = () => {
+
   return useContext(WatchlistContext);
 };

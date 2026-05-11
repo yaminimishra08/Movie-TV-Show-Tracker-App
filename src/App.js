@@ -39,23 +39,30 @@ function App() {
     <BrowserRouter>
     <Layout>
       <Routes>
-        {/* Route for Home */}
-        <Route path="/" element={<Home />} />\
+        {/* Home Route */}
+        <Route path="/" element={<Home />} />
+
+        {/* Movies Routes */}
         <Route path="/movies" element={<Movies />} />
         <Route path="/movie/:id" element={<MovieDetail />} />
 
+        {/* TV Shows Routes */}
         <Route path="/tv-shows" element={<TVShows />} />
         <Route path="/tv/:id" element={<TVDetail />} />
 
-        <Route path="/watchlist" element={<WatchLists />} />
-        
-        <Route path="/watchlist" element={<ProtectedRoute>
+        {/* Login Route */}
         <Route path="/login" element={<Login />} />
-      <WatchLists />
-    </ProtectedRoute>
-  }
-/>
-        </Routes>
+
+        {/* Protected Watchlist Route */}
+        <Route
+          path="/watchlist"
+          element={
+            <ProtectedRoute>
+              <WatchLists />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </Layout>
     
     {/* Toast UI */}
